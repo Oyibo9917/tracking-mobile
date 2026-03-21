@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "TrackingMobile",
+    "slug": "tracking-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to track your trip.",
+        "NSLocationAlwaysUsageDescription": "This app uses your location to track your trip.",
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    }
+  }
+}
