@@ -4,34 +4,42 @@ import Pusher from 'pusher-js';
 global.Pusher = Pusher;
 
 const createEcho = (token) => {
-  const wsHost = process.env.EXPO_PUBLIC_WS_HOST;
-  const cluster = process.env.EXPO_PUBLIC_PUSHER_CLUSTER ?? 'mt1';
+  // ── Reverb (self-hosted) ────────────────────────────────────────────────
+  // Android emulator reaches host machine via 10.0.2.2
+  // iOS Simulator uses 127.0.0.1
+  const { Platform } = require('react-native');
+  const reverbHost = Platform.OS === 'android'
+    ? process.env.EXPO_PUBLIC_REVERB_HOST_ANDROID
+    : process.env.EXPO_PUBLIC_REVERB_HOST_IOS;
 
-  // If no custom WS host, use Pusher cloud
-  const config = wsHost
-    ? {
-        wsHost,
-        wsPort:  Number(process.env.EXPO_PUBLIC_WS_PORT ?? 6001),
-        wssPort: Number(process.env.EXPO_PUBLIC_WS_PORT ?? 6001),
-        forceTLS: false,
-        enabledTransports: ['ws', 'wss'],
-      }
-    : {
-        cluster,
-        forceTLS: true,
-        enabledTransports: ['ws', 'wss'],
-      };
+  const reverbConfig = {
+    wsHost:            reverbHost,
+    wsPort:            Number(process.env.EXPO_PUBLIC_REVERB_PORT ?? 8080),
+    wssPort:           Number(process.env.EXPO_PUBLIC_REVERB_PORT ?? 8080),
+    forceTLS:          false,
+    enabledTransports: ['ws'],
+    disableStats:      true,
+  };
+
+  // ── Pusher cloud (commented out — swap back if needed) ─────────────────
+  // const cluster = process.env.EXPO_PUBLIC_PUSHER_CLUSTER ?? 'mt1';
+  // const pusherConfig = {
+  //   cluster,
+  //   forceTLS:          true,
+  //   enabledTransports: ['ws', 'wss'],
+  //   disableStats:      true,
+  // };
 
   return new Echo({
-    broadcaster:  'pusher',
-    key:          process.env.EXPO_PUBLIC_PUSHER_KEY,
-    disableStats: true,
+    broadcaster: 'reverb',
+    key:         process.env.EXPO_PUBLIC_REVERB_APP_KEY,
     auth: {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     },
-    ...config,
+    ...reverbConfig,
+    // ...pusherConfig,  // ← uncomment to switch back to Pusher
   });
 };
 
